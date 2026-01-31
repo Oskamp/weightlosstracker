@@ -1,38 +1,30 @@
-cat <<EOF > project.html
-<div style="font-family: sans-serif; max-width: 800px; margin: auto; line-height: 1.6;">
-  <div style="text-align: center; margin-bottom: 30px;">
-    <img src="https://www.dreisteine.com/wp-content/uploads/2026/01/apple-touch-icon.png" width="120" style="border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-    <h1 style="color: #e02b20; font-size: 2.5em; margin-top: 10px;">Tactical Weight Loss Dashboard</h1>
-    <p><strong>From Analog 2023 to AI-Powered Cloud 2026</strong></p>
-  </div>
-
-  <h2 style="border-bottom: 2px solid #e02b20; padding-bottom: 5px;">The Mission</h2>
+<div align="center">
+  <img src="https://www.dreisteine.com/wp-content/uploads/2026/01/apple-touch-icon.png" width="120" style="border-radius: 20%;">
+  <h1>Tactical Weight Loss Dashboard (XL2M)</h1>
+  <p><i>A Vibe-Coding Transformation: From 2023 Analog Logs to 2026 AI Intelligence</i></p>
+  
   <p>
-    After a high-intensity period of leading nationwide AI workshops for teachers, I faced a 10kg weight gain due to constant travel. This project is my "Emergency Break." 
-    It is the <strong>digital transformation</strong> of my manual, handwritten weight loss logs from a successful "Halving" challenge in 2023 into a modern, tactical cloud dashboard.
+    <a href="https://www.dreisteine.com/xl2m"><b>Official Homepage</b></a> | 
+    <a href="https://xl2m-b9b6e.web.app"><b>Live Web App</b></a>
   </p>
-
-  <h2 style="border-bottom: 2px solid #e02b20; padding-bottom: 5px;">Vibe Coding & Tech Stack</h2>
-  <p>
-    My journey started in 2023 with image generation in Midjourney. By 2025, I progressed into advanced AI tools for professional education. This app was built during the AI Hackathon Hamburg using a full <strong>Vibe Coding</strong> workflow.
-  </p>
-  <ul style="list-style-type: square;">
-    <li><strong>AI Architecture:</strong> Prompt Design & Gem Development in <strong>Google AI Studio (Gemini)</strong></li>
-    <li><strong>Backend:</strong> Firebase (Firestore & Hosting)</li>
-    <li><strong>Frontend:</strong> HTML5, Tailwind CSS, Chart.js</li>
-  </ul>
-
-  <h2 style="border-bottom: 2px solid #e02b20; padding-bottom: 5px;">Key Features</h2>
-  <ul>
-    <li><strong>Mission Roadmap:</strong> Strategic milestones based on 2023 historical data (Target: 76kg).</li>
-    <li><strong>Fatburn Schedule:</strong> "Tactical Tuesday" logic to ensure long-term consistency.</li>
-    <li><strong>Physiology Navigator:</strong> Real-time BMI and zone-distance tracking.</li>
-    <li><strong>Combat Log:</strong> Direct mobile cloud-sync for weight and activity metrics.</li>
-  </ul>
-
-  <div style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin-top: 30px; text-align: center;">
-    <p style="margin-bottom: 10px;"><strong>Project Information:</strong></p>
-    <a href="https://www.dreisteine.com/xl2m" style="background: #e02b20; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Official Homepage</a>
-  </div>
 </div>
-EOF
+
+<hr>
+
+### 🎯 The Mission
+After a high-intensity period of leading nationwide AI workshops for teachers, I faced a 10kg weight gain due to constant travel. This project is my personal "Emergency Break." It is the **digital transformation** of my manual, handwritten weight loss logs from a successful "Halving" challenge in 2023 into a modern, tactical cloud dashboard.
+
+### 🚀 Journey & Vibe Coding
+My journey started in 2023 with image generation in Midjourney. By 2025, I progressed into advanced AI tools for professional education. This app was built during the AI Hackathon Hamburg using a full **Vibe Coding** workflow:
+* **AI Architecture:** Prompt Design & Gem Development in **Google AI Studio (Gemini)**.
+* **Backend:** Real-time data sync via **Firebase Firestore**.
+* **Frontend:** Mobile-first tactical UI using Tailwind CSS and Chart.js.
+
+### ✨ Tactical Features
+* **Mission Roadmap:** Strategic milestones based on 2023 historical data (Target: 76kg).
+* **Fatburn Schedule:** "Tactical Tuesday" logic to ensure long-term consistency.
+* **Physiology Navigator:** Real-time BMI and zone-distance tracking.
+* **Combat Log:** Direct mobile cloud-sync for weight and activity metrics.
+
+---
+<p align="center">Built with passion for health and AI at the Bucerius Law School, Hamburg.</p>
