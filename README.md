@@ -1,50 +1,38 @@
-# Cursor 2-Day AI Hackathon — Repo Template
+cat <<EOF > project.html
+<div style="font-family: sans-serif; max-width: 800px; margin: auto; line-height: 1.6;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <img src="https://www.dreisteine.com/wp-content/uploads/2026/01/apple-touch-icon.png" width="120" style="border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    <h1 style="color: #e02b20; font-size: 2.5em; margin-top: 10px;">Tactical Weight Loss Dashboard</h1>
+    <p><strong>From Analog 2023 to AI-Powered Cloud 2026</strong></p>
+  </div>
 
-![Cursor 2-Day AI Hackathon](https://ai-beavers.com/_next/image?url=%2Fimages%2Fhackathon-hero-20012026.png&w=1920&q=75)
+  <h2 style="border-bottom: 2px solid #e02b20; padding-bottom: 5px;">The Mission</h2>
+  <p>
+    After a high-intensity period of leading nationwide AI workshops for teachers, I faced a 10kg weight gain due to constant travel. This project is my "Emergency Break." 
+    It is the <strong>digital transformation</strong> of my manual, handwritten weight loss logs from a successful "Halving" challenge in 2023 into a modern, tactical cloud dashboard.
+  </p>
 
-**How to use this template:**
-1. Click "Use this template" → "Create a new repository"
-2. Name your repo and set it to **Public**
-3. Replace this section with your project name and description
+  <h2 style="border-bottom: 2px solid #e02b20; padding-bottom: 5px;">Vibe Coding & Tech Stack</h2>
+  <p>
+    My journey started in 2023 with image generation in Midjourney. By 2025, I progressed into advanced AI tools for professional education. This app was built during the AI Hackathon Hamburg using a full <strong>Vibe Coding</strong> workflow.
+  </p>
+  <ul style="list-style-type: square;">
+    <li><strong>AI Architecture:</strong> Prompt Design & Gem Development in <strong>Google AI Studio (Gemini)</strong></li>
+    <li><strong>Backend:</strong> Firebase (Firestore & Hosting)</li>
+    <li><strong>Frontend:</strong> HTML5, Tailwind CSS, Chart.js</li>
+  </ul>
 
----
+  <h2 style="border-bottom: 2px solid #e02b20; padding-bottom: 5px;">Key Features</h2>
+  <ul>
+    <li><strong>Mission Roadmap:</strong> Strategic milestones based on 2023 historical data (Target: 76kg).</li>
+    <li><strong>Fatburn Schedule:</strong> "Tactical Tuesday" logic to ensure long-term consistency.</li>
+    <li><strong>Physiology Navigator:</strong> Real-time BMI and zone-distance tracking.</li>
+    <li><strong>Combat Log:</strong> Direct mobile cloud-sync for weight and activity metrics.</li>
+  </ul>
 
-# Project Name
-
-> One-line description of your project
-
-## Tech Stack
-
-What technologies power your project?
-
-<!-- List your main technologies, frameworks, and services -->
-
-- **Frontend**: e.g., Next.js, React, Tailwind
-- **Backend**: e.g., Node.js, Python, FastAPI
-- **Database**: e.g., Supabase, Firebase, PostgreSQL
-- **AI/ML**: e.g., OpenAI GPT-4, Gemini Pro
-- **Hosting**: e.g., Vercel, Railway
-
-## How to Run
-
-Step-by-step instructions to run the project locally, including everything that needs to be set up.
-
-```bash
-# Clone the repo
-git clone https://github.com/your-team/your-project.git
-cd your-project
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Add your API keys to .env
-
-# Run the development server
-npm run dev
-```
-
-## Details
-
-Add anything else you want to share: architecture diagrams, screenshots, challenges faced, future plans, etc.
+  <div style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin-top: 30px; text-align: center;">
+    <p style="margin-bottom: 10px;"><strong>Project Information:</strong></p>
+    <a href="https://www.dreisteine.com/xl2m" style="background: #e02b20; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Official Homepage</a>
+  </div>
+</div>
+EOF
