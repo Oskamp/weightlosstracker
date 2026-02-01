@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="XL2M Fighter">
+    <title>XL2M - Fighter Mode 2026</title>
+    
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/google/material-design-icons/master/png/action/fitness_center/black/48dp.png">
+    
+    <!-- CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bebas+Neue&family=Montserrat:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- SDKs (Firebase v8 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --carbon-bg: #030303;
+            --carbon-card: rgba(12, 12, 12, 0.98);
+            --carbon-border: rgba(255, 255, 255, 0.05);
+            --fighter-red: #cc0000;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--carbon-bg);
+            color: #e4e4e7;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .font-logo { font-family: 'Montserrat', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-card {
+            background: var(--carbon-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--carbon-border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .carbon-pattern {
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .fighter-gradient-red {
+            background: linear-gradient(135deg, #a00000 0%, #cc0000 100%);
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #000; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #333; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--fighter-red); }
+
+        @keyframes pulse-online {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .pulse-active { animation: pulse-online 2s infinite; }
+
+        .bmi-marker { transition: left 1s cubic-bezier(0.23, 1, 0.32, 1); }
+
+        .fighter-badge {
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "chart.js": "https://esm.sh/chart.js@^4.5.1",
+    "react-chartjs-2": "https://esm.sh/react-chartjs-2@^5.3.1",
+    "date-fns": "https://esm.sh/date-fns@^4.1.0"
+  }
+}
+</script>
+</head>
+<body class="carbon-pattern pb-24">
+    <div class="max-w-7xl mx-auto px-4 md:px-8">
+        
+        <!-- HEADER -->
+        <header class="py-12 flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10 border-b border-white/5">
+            <div>
+                <h1 class="text-7xl md:text-9xl font-logo font-black tracking-tighter leading-none mb-3 select-none">
+                    <span class="text-[#cc0000]">XL</span><span class="text-white">2</span><span class="text-[#cc0000]">M</span>
+                </h1>
+                <div class="flex items-center gap-5">
+                    <p class="flex items-center gap-2 tracking-[0.5em] font-black uppercase text-[11px] text-[#00d4ff] italic">
+                        <i data-lucide="flame" class="w-4 h-4 fill-current"></i> FIGHTER MODE 2026
+                    </p>
+                    <div id="status-badge" class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-800 bg-black/40 text-[10px] font-black uppercase text-zinc-500 transition-all duration-700">
+                        <div id="status-dot" class="w-2 h-2 rounded-full bg-zinc-700"></div>
+                        <span id="status-text">CONNECTING</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6 fighter-badge border-l-4 border-l-[#cc0000] min-w-[260px]">
+                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">OPERATIVE RANK</span>
+                <span id="rank-text" class="text-4xl font-bebas text-white tracking-widest uppercase">INITIALIZING</span>
+                <div class="w-full bg-zinc-950 h-2 mt-4 rounded-full overflow-hidden border border-white/5">
+                    <div id="rank-progress" class="bg-[#cc0000] h-full transition-all duration-1000 shadow-[0_0_10px_rgba(204,0,0,0.5)]" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD STATS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
+            <div class="glass-card p-8">
+                <div class="flex items-center gap-2 mb-4 text-zinc-500 text-[10px] font-black tracking-widest uppercase">
+                    <i data-lucide="trending-down" class="w-4 h-4 text-[#cc0000]"></i> GESAMT-VERLUST
+                </div>
+                <div id="stat-loss" class="text-5xl font-bebas text-white mb-2">0.0 kg</div>
+                <div class="text-[10px] text-zinc-700 font-bold uppercase tracking-wider">START: 106.5 KG</div>
+            </div>
+            <div class="glass-card p-8">
+                <div class="flex items-center gap-2 mb-4 text-zinc-500 text-[10px] font-black tracking-widest uppercase">
+                    <i data-lucide="calendar" class="w-4 h-4 text-[#00d4ff]"></i> MISSIONSTAGE
+                </div>
+                <div id="stat-days" class="text-5xl font-bebas text-white mb-2">0</div>
+                <div class="text-[10px] text-zinc-700 font-bold uppercase tracking-widest uppercase">ACTIVE DUTY</div>
+            </div>
+            <div class="glass-card p-8 border-b-2 border-emerald-900/20">
+                <div class="flex items-center gap-2 mb-4 text-zinc-500 text-[10px] font-black tracking-widest uppercase">
+                    <i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i> PREDICTION (95 KG)
+                </div>
+                <div id="stat-prognosis" class="text-4xl font-bebas text-emerald-500 mb-2 leading-none uppercase">WAITING...</div>
+                <div id="stat-prognosis-date" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">ZIEL ERREICHT AM</div>
+            </div>
+            <div class="glass-card p-8 border-r-4 border-r-[#cc0000]">
+                <div class="flex items-center gap-2 mb-4 text-zinc-500 text-[10px] font-black tracking-widest uppercase">
+                    <i data-lucide="activity" class="w-4 h-4"></i> WEIGHT
+                </div>
+                <div id="stat-current" class="text-6xl font-bebas text-white">0.0 <span class="text-sm text-zinc-800">KG</span></div>
+                <div id="stat-trend" class="text-[10px] font-bold text-zinc-600 mt-2 uppercase italic tracking-wider">SYNCING LOGS...</div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2">
+            
+            <!-- INPUT PANEL -->
+            <div class="lg:col-span-4 space-y-2">
+                <section class="glass-card p-10 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-[#cc0000]/5 rounded-full blur-3xl"></div>
+                    <h2 class="text-xl font-black uppercase tracking-widest mb-12 flex items-center gap-4">
+                        <i data-lucide="plus-circle" class="w-6 h-6 text-[#cc0000]"></i> COMBAT LOG
+                    </h2>
+                    
+                    <form id="weight-form" class="space-y-6">
+                        <div>
+                            <label class="text-[11px] font-black text-zinc-600 uppercase block mb-3 tracking-[0.2em]">MISSION DATE</label>
+                            <input type="date" id="input-date" required class="w-full bg-black border border-white/10 p-5 text-base text-zinc-100 font-mono focus:border-[#cc0000] outline-none transition-all rounded-sm" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="text-[11px] font-black text-zinc-600 uppercase block mb-3 tracking-[0.2em]">WEIGHT (KG)</label>
+                                <input type="number" id="input-weight" step="0.1" required placeholder="00.0" class="w-full bg-black border border-white/10 p-5 text-2xl text-zinc-100 font-bebas tracking-widest outline-none focus:border-[#00d4ff] transition-all rounded-sm" />
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-black text-zinc-600 uppercase block mb-3 tracking-[0.2em]">WAIST (CM)</label>
+                                <input type="number" id="input-waist" step="0.1" placeholder="--" class="w-full bg-black border border-white/10 p-5 text-2xl text-zinc-100 font-bebas tracking-widest outline-none focus:border-[#00d4ff] transition-all rounded-sm" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-5">
+                            <div>
+                                <label class="text-[11px] font-black text-zinc-600 uppercase block mb-3 tracking-[0.2em]">K-FETT (%)</label>
+                                <input type="number" id="input-fat" step="0.1" placeholder="--" class="w-full bg-black border border-white/10 p-5 text-2xl text-zinc-100 font-bebas tracking-widest outline-none focus:border-[#00d4ff] transition-all rounded-sm" />
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-black text-zinc-600 uppercase block mb-3 tracking-[0.2em]">RUN (KM)</label>
+                                <input type="number" id="input-jogging" step="0.1" placeholder="--" class="w-full bg-black border border-white/10 p-5 text-2xl text-zinc-100 font-bebas tracking-widest outline-none focus:border-[#00d4ff] transition-all rounded-sm" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-black text-zinc-600 uppercase block mb-3 tracking-[0.2em]">TRAINING NOTES</label>
+                            <textarea id="input-training" placeholder="Sparring, HIIT, Gym..." class="w-full bg-black border border-white/10 p-5 text-sm text-zinc-100 font-mono outline-none focus:border-[#cc0000] transition-all rounded-sm h-32 resize-none shadow-inner"></textarea>
+                        </div>
+                        <button type="submit" class="w-full fighter-gradient-red text-white font-black py-6 text-sm tracking-[0.5em] uppercase transition-all flex items-center justify-center gap-4 active:scale-95 shadow-2xl shadow-red-900/40 rounded-sm">
+                            <i data-lucide="save" class="w-6 h-6"></i> TRANSMIT DATA
+                        </button>
+                    </form>
+                </section>
+
+                <!-- TUESDAY PREDICTIONS -->
+                <section class="glass-card p-10">
+                    <h2 class="text-xl font-black uppercase tracking-widest mb-8 flex items-center gap-4">
+                        <i data-lucide="calendar-days" class="w-6 h-6 text-[#00d4ff]"></i> TACTICAL TUESDAYS
+                    </h2>
+                    <div id="tuesday-list" class="space-y-4 max-h-[400px] overflow-y-auto custom-scroll pr-4">
+                        <p class="text-[11px] text-zinc-700 italic">WAITING FOR TREND DATA...</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- DASHBOARD CONTENT -->
+            <div class="lg:col-span-8 space-y-2">
+                
+                <!-- BMI NAVIGATOR -->
+                <section class="glass-card p-12 relative overflow-hidden">
+                    <h2 class="text-xl font-black uppercase tracking-widest mb-14 flex items-center gap-4">
+                        <i data-lucide="user" class="w-6 h-6 text-zinc-600"></i> PHYSIOLOGY NAVIGATOR
+                    </h2>
+                    <div class="relative mb-32 pt-4 px-2">
+                        <div class="h-3 w-full flex rounded-full overflow-hidden bg-zinc-950 border border-white/5">
+                            <div class="h-full bg-emerald-500" style="flex: 7.3;"></div>
+                            <div class="h-full bg-yellow-500" style="flex: 15.4;"></div>
+                            <div class="h-full bg-red-600" style="flex: 15.4;"></div>
+                            <div class="h-full bg-purple-600" style="flex: 11.6;"></div>
+                        </div>
+                        
+                        <div id="bmi-marker-wrapper" class="bmi-marker absolute top-0 flex flex-col items-center z-20" style="left: 0%; transform: translateX(-50%);">
+                            <div class="bg-white h-8 w-1.5 rounded-full shadow-[0_0_15px_white]"></div>
+                            <i data-lucide="chevron-down" class="text-white w-6 h-6 mt-[-4px] fill-current"></i>
+                            <div class="absolute -bottom-20 whitespace-nowrap bg-zinc-950 border border-white/20 px-10 py-5 shadow-2xl rounded-sm">
+                                <div id="bmi-marker-weight" class="text-xl font-black text-white tracking-widest">-- KG</div>
+                                <div id="bmi-marker-val" class="text-[11px] font-bold text-zinc-500 tracking-[0.5em] text-center mt-1 uppercase">-- BMI</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between mt-10 text-[11px] font-black text-zinc-700 uppercase tracking-[0.3em]">
+                            <span>70 KG</span><span>77.3 KG</span><span>92.8 KG</span><span>108.3 KG</span><span>115 KG</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 border-t border-white/10 pt-10">
+                        <div>
+                            <p class="text-[10px] font-black text-zinc-600 uppercase mb-4 tracking-widest">CATEGORIES</p>
+                            <div class="flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-tighter">
+                                <span class="flex items-center gap-2"><div class="w-3 h-3 bg-emerald-500"></div> NORMAL</span>
+                                <span class="flex items-center gap-2"><div class="w-3 h-3 bg-yellow-500"></div> ÜBERGEWICHT</span>
+                                <span class="flex items-center gap-2"><div class="w-3 h-3 bg-red-600"></div> ADIPOSITAS</span>
+                                <span class="flex items-center gap-2"><div class="w-3 h-3 bg-purple-600"></div> ADIPOSITAS III</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-zinc-600 uppercase mb-4 tracking-widest">NEXT ZONE BREAKTHROUGH</p>
+                            <p id="bmi-zone-dist" class="text-5xl font-bebas text-white tracking-widest">0.0 KG</p>
+                            <p id="bmi-zone-name" class="text-[10px] font-black text-zinc-600 mt-2 uppercase italic">AWAITING SCAN...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CHART -->
+                <section class="glass-card p-12">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                        <h2 class="text-xl font-black uppercase tracking-widest text-white flex items-center gap-4">
+                            <i data-lucide="bar-chart-2" class="w-6 h-6 text-[#00d4ff]"></i> FAT TOP DOWN ANALYSIS
+                        </h2>
+                        <div class="flex gap-4 text-[10px] font-black uppercase text-zinc-500">
+                             <div class="flex items-center gap-2"><div class="w-3 h-1 bg-[#cc0000]"></div> GEWICHT</div>
+                             <div class="flex items-center gap-2"><div class="w-3 h-1 bg-[#00d4ff]"></div> BMI</div>
+                             <div class="flex items-center gap-2 border-b border-zinc-700 border-dashed"><div class="w-3 h-0.5 border-t border-zinc-700 border-dashed"></div> 2023 REF</div>
+                        </div>
+                    </div>
+                    <div class="h-[450px] w-full">
+                        <canvas id="weight-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- TABLE -->
+                <section class="glass-card p-10">
+                    <h2 class="text-xl font-black uppercase tracking-widest text-white mb-10 flex items-center gap-4">
+                        <i data-lucide="list" class="w-6 h-6 text-[#cc0000]"></i> MISSION OVERVIEW
+                    </h2>
+                    <div class="overflow-x-auto custom-scroll max-h-[550px]">
+                        <table class="w-full text-left border-collapse min-w-[850px]">
+                            <thead class="sticky top-0 bg-[#080808] z-10">
+                                <tr class="border-b border-white/10 text-[11px] font-black text-zinc-600 tracking-[0.2em]">
+                                    <th class="p-6">DATE</th>
+                                    <th class="p-6">WEIGHT</th>
+                                    <th class="p-6">WAIST / FAT</th>
+                                    <th class="p-6">NOTES / RUN</th>
+                                    <th class="p-6">LOSS TOTAL</th>
+                                    <th class="p-6 text-right">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN LOGIC -->
+    <script>
+        const CONFIG = {
+            START_DATE: '2026-01-27',
+            START_WEIGHT: 106.5,
+            GOAL_WEIGHT: 76.0,
+            TARGET_PROG: 95.0,
+            HEIGHT_M: 1.76,
+            TIMEOUT: 5000
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8lpQ1Eb-Pa1Ney-_7UUtohGS9MQcqnVW",
+            authDomain: "xl2m-b9b6e.firebaseapp.com",
+            projectId: "xl2m-b9b6e",
+            storageBucket: "xl2m-b9b6e.firebasestorage.app",
+            messagingSenderId: "699324024851",
+            appId: "1:699324024851:web:440b3ecd6ce029fb67d7e6",
+            measurementId: "G-4ZFT0T6TJQ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let measurements = [];
+        let weightChart = null;
+        let dataLoaded = false;
+
+        lucide.createIcons();
+
+        const setUIStatus = (status, msg = "") => {
+            const badge = document.getElementById('status-badge');
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            if (status === 'online') {
+                badge.className = 'flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/10 text-[10px] font-black uppercase text-emerald-500 transition-all';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 pulse-active shadow-[0_0_8px_rgba(16,185,129,0.5)]';
+                text.innerText = 'ONLINE';
+            } else {
+                badge.className = 'flex items-center gap-2 px-4 py-1.5 rounded-full border border-red-500/30 bg-red-950/10 text-[10px] font-black uppercase text-red-500 transition-all';
+                dot.className = 'w-2 h-2 rounded-full bg-red-600';
+                text.innerText = msg || 'ERROR - CHECK CONSOLE';
+            }
+        };
+
+        const calculateBMI = (weight) => Number((weight / (CONFIG.HEIGHT_M * CONFIG.HEIGHT_M)).toFixed(1));
+
+        const getNextTuesday = (startDate = new Date()) => {
+            let date = new Date(startDate);
+            date.setDate(date.getDate() + (7 - date.getDay() + 2) % 7 || 7);
+            return date;
+        };
+
+        const updateUI = () => {
+            if (measurements.length === 0) return;
+
+            const sorted = [...measurements].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const latest = sorted[sorted.length - 1];
+            
+            const latestW = parseFloat(String(latest.weight).replace(',', '.'));
+            const totalLoss = CONFIG.START_WEIGHT - latestW;
+            const daysActive = Math.max(1, Math.floor((new Date() - new Date(CONFIG.START_DATE)) / (1000 * 60 * 60 * 24)));
+            
+            document.getElementById('stat-loss').innerText = `${totalLoss.toFixed(1)} kg`;
+            document.getElementById('stat-days').innerText = daysActive;
+            document.getElementById('stat-current').innerHTML = `${latestW.toFixed(1)} <span class="text-sm text-zinc-800">KG</span>`;
+
+            // PREDICTION 95 KG (Last 7 Days Trend)
+            let dailyRate = 0;
+            const weekAgoDate = new Date();
+            weekAgoDate.setDate(weekAgoDate.getDate() - 7);
+            const weekAgoStr = weekAgoDate.toISOString().split('T')[0];
+            
+            // Find closest log entry to 7 days ago
+            const entriesInWeek = sorted.filter(m => m.date >= weekAgoStr);
+            if (entriesInWeek.length >= 2) {
+                const firstInWeek = entriesInWeek[0];
+                const lastInWeek = entriesInWeek[entriesInWeek.length - 1];
+                const dDiff = Math.max(1, Math.floor((new Date(lastInWeek.date) - new Date(firstInWeek.date)) / (1000 * 60 * 60 * 24)));
+                dailyRate = (parseFloat(String(firstInWeek.weight).replace(',','.')) - parseFloat(String(lastInWeek.weight).replace(',','.'))) / dDiff;
+            } else if (sorted.length >= 2) {
+                // Fallback to total trend
+                const first = sorted[0];
+                const dDiff = Math.max(1, Math.floor((new Date(latest.date) - new Date(first.date)) / (1000 * 60 * 60 * 24)));
+                dailyRate = (parseFloat(String(first.weight).replace(',','.')) - latestW) / dDiff;
+            }
+
+            const progVal = document.getElementById('stat-prognosis');
+            const progDate = document.getElementById('stat-prognosis-date');
+            const trendEl = document.getElementById('stat-trend');
+            const tuesdayList = document.getElementById('tuesday-list');
+
+            if (dailyRate > 0) {
+                trendEl.innerText = `-${(dailyRate * 7).toFixed(2)} KG / WEEK (LAST 7D)`;
+                const remTo95 = latestW - CONFIG.TARGET_PROG;
+                if (remTo95 > 0) {
+                    const daysTo95 = Math.ceil(remTo95 / dailyRate);
+                    const targetDate = new Date();
+                    targetDate.setDate(targetDate.getDate() + daysTo95);
+                    progVal.innerText = targetDate.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+                    progDate.innerText = `ZIEL 95.0 KG ERREICHT`;
+
+                    // COMING TUESDAYS
+                    tuesdayList.innerHTML = '';
+                    let tempWeight = latestW;
+                    let tempDate = new Date();
+                    for(let i=1; i<=20; i++) {
+                        let nextTue = getNextTuesday(tempDate);
+                        let daysToTue = Math.floor((nextTue - tempDate) / (1000*60*60*24));
+                        tempWeight -= (daysToTue * dailyRate);
+                        tempDate = nextTue;
+                        
+                        const item = document.createElement('div');
+                        item.className = 'flex justify-between items-center bg-zinc-950 p-4 border-l-2 border-[#00d4ff]';
+                        item.innerHTML = `
+                            <div>
+                                <div class="text-[9px] font-black text-zinc-600 uppercase">DIENSTAG</div>
+                                <div class="text-xs font-bold text-white">${nextTue.toLocaleDateString('de-DE')}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bebas text-[#00d4ff]">${tempWeight.toFixed(1)} KG</div>
+                            </div>
+                        `;
+                        tuesdayList.appendChild(item);
+                        if (tempWeight <= CONFIG.TARGET_PROG) break;
+                    }
+                } else {
+                    progVal.innerText = "ACHIEVED";
+                    progDate.innerText = "MILESTONE 95 KG DONE";
+                }
+            } else {
+                trendEl.innerText = "AWAITING MISSION DATA...";
+                progVal.innerText = "HOLD";
+                tuesdayList.innerHTML = '<p class="text-[11px] text-zinc-700 italic">TREND NEGATIV - KEINE PROGNOSE MÖGLICH</p>';
+            }
+
+            // BMI NAVIGATOR & ZONE DISTANCE
+            const bmi = calculateBMI(latestW);
+            const markerPos = ((Math.min(115, Math.max(70, latestW)) - 70) / (115 - 70)) * 100;
+            document.getElementById('bmi-marker-wrapper').style.left = `${markerPos}%`;
+            document.getElementById('bmi-marker-weight').innerText = `${latestW.toFixed(1)} KG`;
+            document.getElementById('bmi-marker-val').innerText = `${bmi.toFixed(1)} BMI`;
+
+            // Zone thresholds in KG: 108.3 (Adip III), 92.8 (Adip), 77.3 (Übergewicht), 70 (Normal)
+            let dist = 0;
+            let zoneName = "";
+            if (latestW > 108.3) { zoneName = "DISTANZ ZU ADIPOSITAS I"; dist = latestW - 108.3; }
+            else if (latestW > 92.8) { zoneName = "DISTANZ ZU ÜBERGEWICHT"; dist = latestW - 92.8; }
+            else if (latestW > 77.3) { zoneName = "DISTANZ ZUM NORMALGEWICHT"; dist = latestW - 77.3; }
+            else { zoneName = "OPTIMALER BEREICH"; dist = 0; }
+
+            document.getElementById('bmi-zone-dist').innerText = `-${Math.abs(dist).toFixed(1)} KG`;
+            document.getElementById('bmi-zone-name').innerText = zoneName;
+
+            // RANK PROGRESS
+            const progress = (totalLoss / (CONFIG.START_WEIGHT - CONFIG.GOAL_WEIGHT)) * 100;
+            const rankText = document.getElementById('rank-text');
+            const rankProgress = document.getElementById('rank-progress');
+            rankProgress.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+            
+            if (progress < 10) rankText.innerText = "RECRUIT";
+            else if (progress < 25) rankText.innerText = "OPERATIVE";
+            else if (progress < 50) rankText.innerText = "SPECIALIST";
+            else if (progress < 75) rankText.innerText = "WARRIOR";
+            else rankText.innerText = "ELITE FIGHTER";
+
+            // Table Rendering
+            const body = document.getElementById('table-body');
+            body.innerHTML = '';
+            [...sorted].reverse().forEach(m => {
+                const wVal = parseFloat(String(m.weight).replace(',', '.'));
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-white/[0.03] text-[13px] font-mono group transition-colors';
+                tr.innerHTML = `
+                    <td class="p-6 text-zinc-500 font-bold">${new Date(m.date).toLocaleDateString('de-DE')}</td>
+                    <td class="p-6 font-black text-white text-lg">${wVal.toFixed(1)} <span class="text-[10px] text-zinc-800">KG</span></td>
+                    <td class="p-6 text-zinc-500 italic">${m.waist ? m.waist + 'cm' : '--'} / ${m.bodyfat ? m.bodyfat + '%' : '--'}</td>
+                    <td class="p-6 text-[#00d4ff] uppercase font-black italic text-[12px]">${m.training || '--'} ${m.jogging ? '('+m.jogging+'km Run)' : ''}</td>
+                    <td class="p-6 font-bold text-[#cc0000]">-${(CONFIG.START_WEIGHT - wVal).toFixed(1)} <span class="text-[9px]">kg</span></td>
+                    <td class="p-6 text-right"><button onclick="deleteEntry('${m.date}')" class="text-zinc-900 hover:text-red-600 transition-colors p-3 bg-zinc-950/50 rounded-full"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                `;
+                body.appendChild(tr);
+            });
+            lucide.createIcons();
+
+            // Chart Rendering
+            if (sorted.length >= 1) {
+                const ctx = document.getElementById('weight-chart').getContext('2d');
+                if (weightChart) weightChart.destroy();
+                
+                const labels = sorted.map(m => new Date(m.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'}));
+                const weightData = sorted.map(m => parseFloat(String(m.weight).replace(',', '.')));
+                const bmiData = weightData.map(w => calculateBMI(w));
+                
+                weightChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'GEWICHT (KG)',
+                                data: weightData,
+                                borderColor: '#cc0000',
+                                borderWidth: 5,
+                                pointRadius: 6,
+                                pointBackgroundColor: '#cc0000',
+                                yAxisID: 'y',
+                                tension: 0.3
+                            },
+                            {
+                                label: 'BMI',
+                                data: bmiData,
+                                borderColor: '#00d4ff',
+                                borderWidth: 2,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#00d4ff',
+                                yAxisID: 'y1',
+                                tension: 0.3
+                            },
+                            {
+                                label: 'REF 2023',
+                                data: new Array(labels.length).fill(90.4), // Statische Referenzlinie
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                pointRadius: 0,
+                                fill: false,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                position: 'left',
+                                min: 70, 
+                                max: 110, 
+                                grid: { color: 'rgba(255,255,255,0.02)', drawBorder: false }, 
+                                ticks: { color: '#cc0000', font: { family: 'JetBrains Mono', size: 10 } } 
+                            },
+                            y1: {
+                                position: 'right',
+                                min: 20,
+                                max: 40,
+                                grid: { display: false },
+                                ticks: { color: '#00d4ff', font: { family: 'JetBrains Mono', size: 10 } }
+                            },
+                            x: { 
+                                grid: { display: false }, 
+                                ticks: { color: '#444', font: { family: 'JetBrains Mono', size: 9 } } 
+                            }
+                        }
+                    }
+                }); 
+            }
+        };
+
+        window.deleteEntry = async (id) => { 
+            if(confirm('Mission Log löschen?')) {
+                try {
+                    await db.collection('weightData').doc(id).delete();
+                    fetchData(); 
+                } catch(e) { console.error(e); }
+            }
+        };
+
+        document.getElementById('weight-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dateInput = document.getElementById('input-date').value;
+            const weightRaw = document.getElementById('input-weight').value;
+            const waistRaw = document.getElementById('input-waist').value;
+            const fatRaw = document.getElementById('input-fat').value;
+            const joggingRaw = document.getElementById('input-jogging').value;
+            
+            if (!dateInput || !weightRaw) return;
+            
+            try {
+                await db.collection('weightData').doc(dateInput).set({
+                    date: dateInput, 
+                    weight: parseFloat(String(weightRaw).replace(',', '.')), 
+                    waist: parseFloat(String(waistRaw).replace(',', '.')) || 0,
+                    bodyfat: parseFloat(String(fatRaw).replace(',', '.')) || 0,
+                    jogging: parseFloat(String(joggingRaw).replace(',', '.')) || 0,
+                    training: document.getElementById('input-training').value
+                });
+                alert('DATA TRANSMITTED SUCCESSFULLY.');
+                e.target.reset();
+                document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
+                fetchData();
+            } catch(err) {
+                alert('CRITICAL ERROR: ' + err.message);
+            }
+        });
+
+        const fetchData = () => {
+            db.collection('weightData').get().then(snap => {
+                measurements = snap.docs.map(d => d.data());
+                dataLoaded = true;
+                setUIStatus('online');
+                updateUI();
+            }).catch(err => {
+                console.error("Fetch failure:", err);
+                setUIStatus('offline', 'DB_ERROR: ' + err.code);
+            });
+        };
+
+        // Initialize App
+        document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
+        setTimeout(() => { if(!dataLoaded) setUIStatus('offline', 'TIMEOUT_ERROR'); }, CONFIG.TIMEOUT);
+
+        fetchData();
+        db.collection('weightData').onSnapshot(snap => {
+            measurements = snap.docs.map(d => d.data());
+            updateUI();
+        });
+
+    </script>
+</body>
+</html>
